@@ -27,19 +27,13 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody UserRegisterDto registerDto) {
         try {
-            // 1. Crear usuario
-            User user = new User();
-            user.setName(registerDto.getName());
-            user.setEmail(registerDto.getEmail());
-            user.setPassword(registerDto.getPassword());
+            // CAMBIO CLAVE: El Controller ya no crea el 'User'.
+            // Delega TODA la lógica de registro al Service, pasándole el DTO.
+            User savedUser = userService.registerUserFromDto(registerDto); // Llamamos a un nuevo método en el servicio
 
-            // 2. Registrar (hashea password)
-            User savedUser = userService.registerUser(user);
-
-            // 3. Generar token JWT
+            // El resto del código para generar el token y la respuesta es perfecto.
             String token = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getId());
 
-            // 4. Crear respuesta
             UserResponse response = new UserResponse(
                     savedUser.getId(),
                     savedUser.getName(),
@@ -57,14 +51,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserResponse>> login(@Valid @RequestBody UserLoginDto loginDto) {
         try {
-            // 1. Autenticar (verifica email/password y genera token)
             String token = userService.authenticateUser(loginDto.getEmail(), loginDto.getPassword());
 
-            // 2. Obtener usuario
             User user = userService.findByEmail(loginDto.getEmail())
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-            // 3. Crear respuesta
             UserResponse response = new UserResponse(
                     user.getId(),
                     user.getName(),
@@ -75,7 +66,6 @@ public class AuthController {
             return ResponseEntity.ok(ApiResponse.success("Login exitoso", response));
 
         } catch (RuntimeException e) {
-            // Mensaje genérico por seguridad
             return ResponseEntity.badRequest().body(ApiResponse.error("Credenciales inválidas"));
         }
     }

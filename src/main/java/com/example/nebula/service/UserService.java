@@ -1,6 +1,7 @@
 package com.example.nebula.service;
 
 import com.example.nebula.config.JwtUtil;
+import com.example.nebula.dto.auth.UserRegisterDto;
 import com.example.nebula.model.User;
 import com.example.nebula.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -54,5 +55,19 @@ public class UserService {
 
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
+    }
+
+    public User registerUserFromDto(UserRegisterDto registerDto) {
+        if (userRepository.existsByEmail(registerDto.getEmail())) {
+            throw new RuntimeException("El correo electrónico ya está en uso");
+        }
+
+        User newUser = new User();
+        newUser.setName(registerDto.getName());
+        newUser.setEmail(registerDto.getEmail());
+
+        newUser.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+
+        return userRepository.save(newUser);
     }
 }
