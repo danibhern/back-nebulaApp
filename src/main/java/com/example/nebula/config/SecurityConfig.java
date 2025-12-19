@@ -30,8 +30,8 @@ public class SecurityConfig {
                                 "/users/login",
                                 "/h2-console/**",
                                 "/products",
-                                "/contact",
-                                "/reservas"
+                                "/contact/**",
+                                "/reservas/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

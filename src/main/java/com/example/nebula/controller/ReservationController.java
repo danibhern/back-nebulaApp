@@ -22,30 +22,32 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ReservaResponse>> crearReserva(@Valid @RequestBody ReservaDto reservaDto) {
-        try {
-            Reservation reservation = new Reservation();
-            reservation.setNombreCliente(reservaDto.getNombreCliente());
-            reservation.setEmailCliente(reservaDto.getEmailCliente());
-            reservation.setTelefonoCliente(reservaDto.getTelefonoCliente());
-            reservation.setFecha(reservaDto.getFecha());
-            reservation.setHora(reservaDto.getHora());
-            reservation.setCantidadPersonas(reservaDto.getCantidadPersonas());
+    public ResponseEntity<ApiResponse<ReservaResponse>> crearReserva(
+            @Valid @RequestBody ReservaDto reservaDto) {
 
-            Reservation savedReservation = reservationService.createReservation(reservation, reservaDto.getUserId());
+        Reservation reservation = new Reservation();
+        reservation.setNombreCliente(reservaDto.getNombreCliente());
+        reservation.setEmailCliente(reservaDto.getEmailCliente());
+        reservation.setTelefonoCliente(reservaDto.getTelefonoCliente());
+        reservation.setFecha(reservaDto.getFecha());
+        reservation.setHora(reservaDto.getHora());
+        reservation.setCantidadPersonas(reservaDto.getCantidadPersonas());
 
-            ReservaResponse response = new ReservaResponse(
-                    savedReservation.getId(),
-                    savedReservation.getNombreCliente(),
-                    savedReservation.getFecha(),
-                    savedReservation.getHora()
-            );
+        Reservation savedReservation =
+                reservationService.createReservation(reservation, reservaDto.getUserId());
 
-            return ResponseEntity.ok(ApiResponse.success("Reserva creada exitosamente", response));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
-        }
+        ReservaResponse response = new ReservaResponse(
+                savedReservation.getId(),
+                savedReservation.getNombreCliente(),
+                savedReservation.getFecha(),
+                savedReservation.getHora()
+        );
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Reserva creada exitosamente", response)
+        );
     }
+
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<ApiResponse<java.util.List<ReservaResponse>>> getReservationsByUser(@PathVariable Long userId) {
